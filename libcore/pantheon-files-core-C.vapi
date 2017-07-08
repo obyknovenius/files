@@ -161,6 +161,7 @@ namespace Marlin
     public class IconInfo : GLib.Object {
         public static IconInfo? lookup (GLib.Icon icon, int size);
         public static IconInfo? lookup_from_name (string icon_name, int size);
+        public static IconInfo? lookup_from_path (string path, int size);
         public Gdk.Pixbuf? get_pixbuf_nodefault ();
         public Gdk.Pixbuf? get_pixbuf_at_size (int size);
         public static void clear_caches ();

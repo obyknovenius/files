@@ -22,6 +22,9 @@
 void add_icon_info_tests () {
     Test.add_func ("/MarlinIconInfo/goffile_icon_update", goffile_icon_update_test);
     Test.add_func ("/MarlinIconInfo/cache_and_ref", cache_and_ref_test);
+    Test.add_func ("/MarlinIconInfo/lookup_from_path_svg", lookup_from_path_svg_test);
+    Test.add_func ("/MarlinIconInfo/lookup_from_path_jpg", lookup_from_path_jpg_test);
+    Test.add_func ("/MarlinIconInfo/lookup_from_path_png", lookup_from_path_png_test);
 }
 
 void goffile_icon_update_test () {
@@ -80,6 +83,56 @@ void cache_and_ref_test () {
         return false;
     });
     loop.run ();
+}
+
+void lookup_from_path_svg_test () {
+    /* Test file is 32 X 32 px*/
+    string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.svg");
+    lookup_from_path (test_file_path);
+}
+
+void lookup_from_path_jpg_test () {
+    /* Test file is 3000 x 1688 px */
+    string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.jpg");
+    lookup_from_path (test_file_path);
+}
+
+void lookup_from_path_png_test () {
+    /* Test file is 144 x 256 px */
+    string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.png");
+    lookup_from_path (test_file_path);
+}
+
+void lookup_from_path (string test_file_path) {
+    Marlin.IconInfo.clear_caches ();
+    Gdk.Pixbuf? pix = null;
+
+    try {
+        pix = new Gdk.Pixbuf.from_file (test_file_path);
+    } catch (Error e) {
+        assert_not_reached ();
+    }
+
+    double aspect = (double)(pix.get_height ()) / (double)(pix.get_width ());
+
+    var marlin_icon = Marlin.IconInfo.lookup_from_path (test_file_path, 32);
+    assert (Marlin.IconInfo.themed_icon_cache_info () == 0);
+    assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
+
+    var pixbuf = marlin_icon.get_pixbuf_nodefault ();
+    assert (pixbuf.width == 32);
+    assert (pixbuf.height == (int)(32 * aspect));
+
+    pixbuf = marlin_icon.get_pixbuf_at_size (24);
+    assert (pixbuf.width == 24);
+    assert (pixbuf.height == (int)(24 * aspect));
+
+    pixbuf = marlin_icon.get_pixbuf_at_size (128);
+    assert (pixbuf.width == 128);
+    assert (pixbuf.height == (int)(128 * aspect));
+
+    pixbuf = marlin_icon.get_pixbuf_at_size (0);
+    assert (pixbuf == null);
 }
 
 int main (string[] args) {
