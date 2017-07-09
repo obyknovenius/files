@@ -539,9 +539,14 @@ marlin_icon_info_get_pixbuf_at_size (MarlinIconInfo *icon, gsize forced_size)
     int w, h, s;
     double scale;
 
-    pixbuf = marlin_icon_info_get_pixbuf_nodefault (icon); /* Adds ref */
-    if (pixbuf == NULL)
+    if (forced_size < 1) {
         return NULL;
+    }
+
+    pixbuf = marlin_icon_info_get_pixbuf_nodefault (icon); /* Adds ref */
+    if (pixbuf == NULL) {
+        return NULL;
+    }
 
     w = gdk_pixbuf_get_width (pixbuf);
     h = gdk_pixbuf_get_height (pixbuf);
@@ -557,6 +562,8 @@ marlin_icon_info_get_pixbuf_at_size (MarlinIconInfo *icon, gsize forced_size)
         scaled_pixbuf = gdk_pixbuf_scale_simple (pixbuf,
                                                  w_scaled, h_scaled,
                                                  GDK_INTERP_BILINEAR);
+
+        g_object_unref (icon->pixbuf);
     }
 
     return scaled_pixbuf;
