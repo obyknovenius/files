@@ -31,6 +31,8 @@ void add_breadcrumb_element_tests () {
 
 /*** Test functions ***/
 void breadcrumb_escaped_name_test () {
+    Test.log_set_fatal_handler (fatal_handler);
+
     string name = Uri.escape_string (TEST_NAME);
     var bce = make_breadcrumb_element (name);
 
@@ -41,6 +43,8 @@ void breadcrumb_escaped_name_test () {
 }
 
 void breadcrumb_unescaped_name_test () {
+    Test.log_set_fatal_handler (fatal_handler);
+
     var bce = make_breadcrumb_element (TEST_NAME);
 
     assert (bce != null);
@@ -50,6 +54,8 @@ void breadcrumb_unescaped_name_test () {
 }
 
 void breadcrumb_no_name_test () {
+    Test.log_set_fatal_handler (fatal_handler);
+
     var bce = make_breadcrumb_element ("");
 
     assert (bce != null);
@@ -63,6 +69,8 @@ void breadcrumb_no_name_test () {
 }
 
 void breadcrumb_icon_test () {
+    Test.log_set_fatal_handler (fatal_handler);
+
     var bce = make_breadcrumb_element ("");
     int size = 16;
     Gdk.Pixbuf? pb = null;
@@ -100,16 +108,15 @@ void check_widths (Marlin.View.Chrome.BreadcrumbElement bce, string name) {
     assert (bce.real_width == bce.display_width);
 }
 
-bool fatal_handler (string? log_domain, LogLevelFlags log_levels, string message) {
-    /* Do not fail on WARN messages issued by Gtk re theme parsing */
-    return (log_levels & GLib.LogLevelFlags.LEVEL_WARNING) == 0;
+bool fatal_handler (string? log_domain, LogLevelFlags log_levels, string msg) {
+    /* Do not fail on WARN messages or those issued by Gtk e.g. re theme parsing */
+    return !(((log_levels & GLib.LogLevelFlags.LEVEL_WARNING) > 0) || (log_domain != null && log_domain.contains ("Gtk")));
 }
 
 int main (string[] args) {
-    Test.init (ref args);
     Test.log_set_fatal_handler (fatal_handler);
 
-    Gtk.init (ref args);
+    Gtk.test_init (ref args);
 
     add_breadcrumb_element_tests ();
     return Test.run ();
