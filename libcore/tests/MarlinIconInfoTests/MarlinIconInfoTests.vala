@@ -26,6 +26,7 @@ void add_icon_info_tests () {
     Test.add_func ("/MarlinIconInfo/lookup_from_path_jpg", lookup_from_path_jpg_test);
     Test.add_func ("/MarlinIconInfo/lookup_from_path_png", lookup_from_path_png_test);
     Test.add_func ("/MarlinIconInfo/pixbuf_at_size_test", pixbuf_at_size_test);
+    Test.add_func ("/MarlinIconInfo/lookup_from_name", lookup_from_name_test);
 }
 
 void goffile_icon_update_test () {
