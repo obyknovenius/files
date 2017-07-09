@@ -73,7 +73,7 @@ void cache_and_ref_test () {
     });
     loop.run ();
 
-     file.pix = null;
+    file.pix = null;
 
     loop = new MainLoop ();
     Timeout.add (reap_time_msec * 12, () => {
@@ -118,21 +118,28 @@ void lookup_from_path (string test_file_path) {
     var marlin_icon = Marlin.IconInfo.lookup_from_path (test_file_path, 32);
     assert (Marlin.IconInfo.themed_icon_cache_info () == 0);
     assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
+    assert (marlin_icon.ref_count == 2);
+    assert (marlin_icon.get_pixbuf_ref_count () == 2);
 
-    var pixbuf = marlin_icon.get_pixbuf_nodefault ();
-    assert (pixbuf.width == 32);
-    assert (pixbuf.height == (int)(32 * aspect));
+    assert (check_pixbuf_dimension (marlin_icon.get_pixbuf_nodefault (), 32, aspect));
+    assert (check_pixbuf_dimension (marlin_icon.get_pixbuf_at_size (24), 24, aspect));
+    assert (check_pixbuf_dimension (marlin_icon.get_pixbuf_at_size (128), 128, aspect));
+    assert (marlin_icon.get_pixbuf_at_size (0) == null);
 
-    pixbuf = marlin_icon.get_pixbuf_at_size (24);
-    assert (pixbuf.width == 24);
-    assert (pixbuf.height == (int)(24 * aspect));
+    /* Getting (temporary) scaled pixbufs does not create new iconinfo nor increase pixbuf refcount */
+    assert (Marlin.IconInfo.themed_icon_cache_info () == 0);
+    assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
+    assert (marlin_icon.ref_count == 2);
+    assert (marlin_icon.get_pixbuf_ref_count () == 2);
 
-    pixbuf = marlin_icon.get_pixbuf_at_size (128);
-    assert (pixbuf.width == 128);
-    assert (pixbuf.height == (int)(128 * aspect));
+}
 
-    pixbuf = marlin_icon.get_pixbuf_at_size (0);
-    assert (pixbuf == null);
+bool check_pixbuf_dimension (Gdk.Pixbuf pix, int size, double aspect) {
+    if (aspect <= 1.0) {
+        return (pix.width == size && pix.height == (int)(size * aspect));
+    } else {
+        return (pix.height == size && pix.width == (int)(size / aspect));
+    }
 }
 
 int main (string[] args) {
