@@ -78,3 +78,5 @@ set_target_properties (${PKGNAME} PROPERTIES
 
 install (TARGETS ${PKGNAME} DESTINATION ${CMAKE_INSTALL_LIBDIR})
 target_link_libraries(${PKGNAME} pantheon-files-core ${DEPS_LIBRARIES})
+
+add_subdirectory (tests)
