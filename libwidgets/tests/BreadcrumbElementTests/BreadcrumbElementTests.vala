@@ -24,6 +24,7 @@ const string TEST_NAME = "#test? \name&_漢字"; /* This should be most problema
 void add_breadcrumb_element_tests () {
     Test.add_func ("/BreadcrumbElement/escaped_name", breadcrumb_escaped_name_test);
     Test.add_func ("/BreadcrumbElement/unescaped_name", breadcrumb_unescaped_name_test);
+    Test.add_func ("/BreadcrumbElement/no_name", breadcrumb_no_name_test);
 }
 
 /*** Test functions ***/
@@ -44,6 +45,19 @@ void breadcrumb_unescaped_name_test () {
     assert (bce.text_for_display == TEST_NAME);
 
     check_widths (bce, TEST_NAME);
+}
+
+void breadcrumb_no_name_test () {
+    var bce = make_breadcrumb_element ("");
+
+    assert (bce != null);
+    assert (bce.text_for_display == "");
+    assert (bce.display_width < 0);
+    assert (bce.natural_width >= 0);
+    assert (bce.real_width == bce.natural_width);
+
+    bce.display_width = 5;
+    assert (bce.real_width == bce.display_width);
 }
 
 /*** Helper functions ***/
