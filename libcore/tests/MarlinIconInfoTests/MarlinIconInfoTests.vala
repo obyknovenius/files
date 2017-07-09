@@ -132,6 +132,14 @@ void pixbuf_at_size_test () {
     assert (marlin_icon.get_pixbuf_ref_count () == 2);
 }
 
+void lookup_from_name_test () {
+    Marlin.IconInfo.clear_caches ();
+
+    Marlin.IconInfo.lookup_from_name ("system-file-manager", 32);
+    assert (Marlin.IconInfo.themed_icon_cache_info () == 1);
+    assert (Marlin.IconInfo.loadable_icon_cache_info () == 0);
+}
+
 Marlin.IconInfo? lookup_from_path (string test_file_path, int size) {
     Marlin.IconInfo.clear_caches ();
 
