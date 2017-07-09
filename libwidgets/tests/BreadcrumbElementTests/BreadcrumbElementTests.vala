@@ -20,11 +20,13 @@
 */
 
 const string TEST_NAME = "#test? \name&_漢字"; /* This should be most problematic name possible */
+const string TEST_ICON_NAME = "folder-documents-symbolic.svg";
 
 void add_breadcrumb_element_tests () {
     Test.add_func ("/BreadcrumbElement/escaped_name", breadcrumb_escaped_name_test);
     Test.add_func ("/BreadcrumbElement/unescaped_name", breadcrumb_unescaped_name_test);
     Test.add_func ("/BreadcrumbElement/no_name", breadcrumb_no_name_test);
+    Test.add_func ("/BreadcrumbElement/icon", breadcrumb_icon_test);
 }
 
 /*** Test functions ***/
@@ -60,6 +62,26 @@ void breadcrumb_no_name_test () {
     assert (bce.real_width == bce.display_width);
 }
 
+void breadcrumb_icon_test () {
+    var bce = make_breadcrumb_element ("");
+    int size = 16;
+    Gdk.Pixbuf? pb = null;
+
+    string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", TEST_ICON_NAME);
+
+    try {
+        pb = new Gdk.Pixbuf.from_file_at_size (test_file_path, size, size);
+    } catch (GLib.Error e) {
+        warning ("Failed to get test pixbuf - %s", e.message);
+        Test.fail ();
+    }
+
+    bce.set_icon (pb);
+    assert (bce.icon_width == size);
+
+    bce.set_icon (null);
+    assert (bce.icon_width == 0);
+}
 /*** Helper functions ***/
 Marlin.View.Chrome.BreadcrumbElement make_breadcrumb_element (string text) {
     Gtk.Widget w = new Gtk.Grid ();

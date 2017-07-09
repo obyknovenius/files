@@ -105,7 +105,7 @@ namespace Marlin {
 
        private void add_special_directory (GLib.UserDirectory user_dir, ref GLib.List<string> uris) {
             string? dir_s = Environment.get_user_special_dir (user_dir);
- 
+
             if (dir_s != null)
                 uris.prepend ("file://" + dir_s);
         }
@@ -119,11 +119,11 @@ namespace Marlin {
             add_special_directory (UserDirectory.PICTURES, ref uris);
             add_special_directory (UserDirectory.TEMPLATES, ref uris);
             add_special_directory (UserDirectory.VIDEOS, ref uris);
-           
+
             uris.reverse ();
             insert_uris_at_end (uris);
         }
- 
+
         public static BookmarkList get_instance () {
             if (instance == null)
                 instance = new BookmarkList ();
@@ -159,7 +159,7 @@ namespace Marlin {
             });
             save_bookmarks_file ();
         }
- 
+
         public bool contains (Marlin.Bookmark bm) {
             return (list.find_custom (bm, Marlin.Bookmark.compare_with) != null);
         }

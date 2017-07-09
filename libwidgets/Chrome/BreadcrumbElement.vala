@@ -23,7 +23,7 @@ public class Marlin.View.Chrome.BreadcrumbElement : Object {
     private const int ICON_MARGIN = 3;
     private string icon_name; /*For testing */
     private Gdk.Pixbuf? icon = null;
-    private int icon_width;
+    public int icon_width {get; private set;}
     private int icon_half_height;
 
     public string? text {get; private set;}
@@ -78,11 +78,18 @@ public class Marlin.View.Chrome.BreadcrumbElement : Object {
         text_for_display = Uri.unescape_string (text);
     }
 
-    public void set_icon (Gdk.Pixbuf icon_) {
+    public void set_icon (Gdk.Pixbuf? icon_) {
         icon = icon_;
-        icon_width = icon.get_width ();
-        icon_half_height = icon.get_height () / 2;
+        if (icon_ == null) {
+            icon_width = 0;
+            icon_half_height = 0;
+            icon_name = "";
+        } else {
+            icon_width = icon.get_width ();
+            icon_half_height = icon.get_height () / 2;
+        }
     }
+
     public void set_icon_name (string icon_name_) {
         icon_name = icon_name_;
     }
