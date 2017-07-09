@@ -19,11 +19,45 @@
 * Authored by: Jeremy Wootten <jeremy@elementaryos.org>
 */
 
+const string TEST_NAME = "#test? \name&_漢字";
+
 void add_breadcrumb_element_tests () {
+    Test.add_func ("/BreadcrumbElement/name", breadcrumb_name_test);
+}
+
+/*** Test functions ***/
+void breadcrumb_name_test () {
+    var bce = make_breadcrumb_element (Uri.escape_string (TEST_NAME));
+
+    assert (bce != null);
+    assert (bce.text_for_display == TEST_NAME);
+    assert (bce.display_width < 0);
+    assert (bce.natural_width >= TEST_NAME.length);
+    assert (bce.real_width == bce.natural_width);
+
+    bce.display_width = bce.natural_width - 5;
+    assert (bce.real_width == bce.display_width);
+}
+
+/*** Helper functions ***/
+Marlin.View.Chrome.BreadcrumbElement make_breadcrumb_element (string text) {
+    Gtk.Widget w = new Gtk.Grid ();
+    Gtk.StyleContext sc = w.get_style_context ();
+    sc.add_class ("pathbar");
+
+    return new Marlin.View.Chrome.BreadcrumbElement (text, w, sc);
+}
+
+bool fatal_handler (string? log_domain, LogLevelFlags log_levels, string message) {
+    /* Do not fail on WARN messages issued by Gtk re theme parsing */
+    return (log_levels & GLib.LogLevelFlags.LEVEL_WARNING) == 0;
 }
 
 int main (string[] args) {
     Test.init (ref args);
+    Test.log_set_fatal_handler (fatal_handler);
+
+    Gtk.init (ref args);
 
     add_breadcrumb_element_tests ();
     return Test.run ();

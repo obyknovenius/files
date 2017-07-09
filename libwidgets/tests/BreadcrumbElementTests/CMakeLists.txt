@@ -1,8 +1,10 @@
 include_directories(${CMAKE_BINARY_DIR})
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+include_directories(${CMAKE_BINARY_DIR}/libwidgets)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libwidgets)
 
-set (CORE_LIB
-    pantheon-files-core
+set (WIDGET_LIB
+    pantheon-files-widgets
 )
 
 set (CFLAGS
@@ -29,9 +31,11 @@ vala_precompile (VALA_TEST_C ${TEST_NAME}
     posix
     pantheon-files-core
     pantheon-files-core-C
+    pantheon-files-widgets
   OPTIONS
     --vapidir=${CMAKE_SOURCE_DIR}/libcore/
     --vapidir=${CMAKE_BINARY_DIR}/libcore/
+    --vapidir=${CMAKE_BINARY_DIR}/libwidgets/
     --thread
     --target-glib=2.32 # Needed for new thread API
 )
@@ -40,8 +44,8 @@ add_executable (${TEST_NAME}
     ${VALA_TEST_C}
 )
 
-target_link_libraries (${TEST_NAME} ${CORE_LIB} ${DEPS_LIBRARIES})
-add_dependencies (${TEST_NAME} ${CORE_LIB})
+target_link_libraries (${TEST_NAME} ${WIDGET_LIB} ${DEPS_LIBRARIES})
+add_dependencies (${TEST_NAME} ${WIDGET_LIB})
 
 add_test (core-${TEST_NAME} ${TEST_NAME})
 
