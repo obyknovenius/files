@@ -211,10 +211,9 @@ reap_old_icon (LoadableIconKey *key, gpointer value, gpointer user_info)
 
     icon = (MarlinIconInfo *) value;
 
-    g_message ("reap %s? %i", icon->icon_name, gdk_pixbuf_get_height (icon->pixbuf));
+    g_debug ("reap %s? %i", icon->icon_name, gdk_pixbuf_get_height (icon->pixbuf));
     if (icon->pixbuf && G_IS_OBJECT (icon->pixbuf) && G_OBJECT (icon->pixbuf)->ref_count == 1) {
         if (time_now - icon->last_use_time > reap_time * 6) {
-g_message ("YES");
             return TRUE;
         } else {
             /* We can reap this soon */
@@ -446,7 +445,7 @@ marlin_icon_info_lookup (GIcon *icon, int size)
 
         key = themed_icon_key_new (filename, size);
         g_hash_table_insert (themed_icon_cache, key, g_object_ref (icon_info));
-        g_message ("INSERTED %s themed icon %s\n", G_STRFUNC, filename);
+        g_debug ("INSERTED %s themed icon %s\n", G_STRFUNC, filename);
 
         gtk_icon_info_free (gtkicon_info);
 

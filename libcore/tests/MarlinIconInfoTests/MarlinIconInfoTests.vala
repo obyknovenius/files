@@ -25,6 +25,7 @@ void add_icon_info_tests () {
     Test.add_func ("/MarlinIconInfo/lookup_from_path_svg", lookup_from_path_svg_test);
     Test.add_func ("/MarlinIconInfo/lookup_from_path_jpg", lookup_from_path_jpg_test);
     Test.add_func ("/MarlinIconInfo/lookup_from_path_png", lookup_from_path_png_test);
+    Test.add_func ("/MarlinIconInfo/pixbuf_at_size_test", pixbuf_at_size_test);
 }
 
 void goffile_icon_update_test () {
@@ -88,23 +89,25 @@ void cache_and_ref_test () {
 void lookup_from_path_svg_test () {
     /* Test file is 32 X 32 px*/
     string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.svg");
-    lookup_from_path (test_file_path);
+    lookup_from_path (test_file_path, 64);
 }
 
 void lookup_from_path_jpg_test () {
     /* Test file is 3000 x 1688 px */
     string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.jpg");
-    lookup_from_path (test_file_path);
+    lookup_from_path (test_file_path, 128);
 }
 
 void lookup_from_path_png_test () {
     /* Test file is 144 x 256 px */
     string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.png");
-    lookup_from_path (test_file_path);
+    lookup_from_path (test_file_path, 256);
 }
 
-void lookup_from_path (string test_file_path) {
+void pixbuf_at_size_test () {
     Marlin.IconInfo.clear_caches ();
+
+    string test_file_path = Path.build_filename (Config.TESTDATA_DIR, "images", "testimage.svg");
     Gdk.Pixbuf? pix = null;
 
     try {
@@ -114,12 +117,7 @@ void lookup_from_path (string test_file_path) {
     }
 
     double aspect = (double)(pix.get_height ()) / (double)(pix.get_width ());
-
     var marlin_icon = Marlin.IconInfo.lookup_from_path (test_file_path, 32);
-    assert (Marlin.IconInfo.themed_icon_cache_info () == 0);
-    assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
-    assert (marlin_icon.ref_count == 2);
-    assert (marlin_icon.get_pixbuf_ref_count () == 2);
 
     assert (check_pixbuf_dimension (marlin_icon.get_pixbuf_nodefault (), 32, aspect));
     assert (check_pixbuf_dimension (marlin_icon.get_pixbuf_at_size (24), 24, aspect));
@@ -131,7 +129,18 @@ void lookup_from_path (string test_file_path) {
     assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
     assert (marlin_icon.ref_count == 2);
     assert (marlin_icon.get_pixbuf_ref_count () == 2);
+}
 
+Marlin.IconInfo? lookup_from_path (string test_file_path, int size) {
+    Marlin.IconInfo.clear_caches ();
+
+    var marlin_icon = Marlin.IconInfo.lookup_from_path (test_file_path, size);
+    assert (Marlin.IconInfo.themed_icon_cache_info () == 0);
+    assert (Marlin.IconInfo.loadable_icon_cache_info () == 1);
+    assert (marlin_icon.ref_count == 2);
+    assert (marlin_icon.get_pixbuf_ref_count () == 2);
+
+    return marlin_icon;
 }
 
 bool check_pixbuf_dimension (Gdk.Pixbuf pix, int size, double aspect) {
