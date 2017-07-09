@@ -652,3 +652,9 @@ void marlin_icon_info_set_reap_time (guint milliseconds) {
         }
     }
 }
+
+/** For testing only **/
+guint
+marlin_icon_info_get_pixbuf_ref_count (MarlinIconInfo *icon) {
+    return G_OBJECT(icon->pixbuf)->ref_count;
+}

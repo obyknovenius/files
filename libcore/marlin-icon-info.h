@@ -65,6 +65,7 @@ void                marlin_icon_info_remove_cache               (const char *pat
 guint               marlin_icon_info_themed_icon_cache_info     (void);
 guint               marlin_icon_info_loadable_icon_cache_info   (void);
 void                marlin_icon_info_set_reap_time              (uint milliseconds);
+guint               marlin_icon_info_get_pixbuf_ref_count       (MarlinIconInfo *icon);
 
 G_END_DECLS
 

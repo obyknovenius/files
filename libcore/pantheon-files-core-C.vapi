@@ -170,6 +170,7 @@ namespace Marlin
         public static uint loadable_icon_cache_info ();
         public static uint themed_icon_cache_info ();
         public static void set_reap_time (uint milliseconds);
+        public uint get_pixbuf_ref_count ();
     }
     [CCode (cheader_filename = "marlin-trash-monitor.h")]
     public abstract class TrashMonitor : GLib.Object
