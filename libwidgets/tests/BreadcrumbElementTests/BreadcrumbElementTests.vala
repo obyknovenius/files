@@ -19,24 +19,31 @@
 * Authored by: Jeremy Wootten <jeremy@elementaryos.org>
 */
 
-const string TEST_NAME = "#test? \name&_漢字";
+const string TEST_NAME = "#test? \name&_漢字"; /* This should be most problematic name possible */
 
 void add_breadcrumb_element_tests () {
-    Test.add_func ("/BreadcrumbElement/name", breadcrumb_name_test);
+    Test.add_func ("/BreadcrumbElement/escaped_name", breadcrumb_escaped_name_test);
+    Test.add_func ("/BreadcrumbElement/unescaped_name", breadcrumb_unescaped_name_test);
 }
 
 /*** Test functions ***/
-void breadcrumb_name_test () {
-    var bce = make_breadcrumb_element (Uri.escape_string (TEST_NAME));
+void breadcrumb_escaped_name_test () {
+    string name = Uri.escape_string (TEST_NAME);
+    var bce = make_breadcrumb_element (name);
 
     assert (bce != null);
     assert (bce.text_for_display == TEST_NAME);
-    assert (bce.display_width < 0);
-    assert (bce.natural_width >= TEST_NAME.length);
-    assert (bce.real_width == bce.natural_width);
 
-    bce.display_width = bce.natural_width - 5;
-    assert (bce.real_width == bce.display_width);
+    check_widths (bce, name);
+}
+
+void breadcrumb_unescaped_name_test () {
+    var bce = make_breadcrumb_element (TEST_NAME);
+
+    assert (bce != null);
+    assert (bce.text_for_display == TEST_NAME);
+
+    check_widths (bce, TEST_NAME);
 }
 
 /*** Helper functions ***/
@@ -46,6 +53,15 @@ Marlin.View.Chrome.BreadcrumbElement make_breadcrumb_element (string text) {
     sc.add_class ("pathbar");
 
     return new Marlin.View.Chrome.BreadcrumbElement (text, w, sc);
+}
+
+void check_widths (Marlin.View.Chrome.BreadcrumbElement bce, string name) {
+    assert (bce.display_width < 0);
+    assert (bce.natural_width >= name.length);
+    assert (bce.real_width == bce.natural_width);
+
+    bce.display_width = bce.natural_width - 5;
+    assert (bce.real_width == bce.display_width);
 }
 
 bool fatal_handler (string? log_domain, LogLevelFlags log_levels, string message) {
