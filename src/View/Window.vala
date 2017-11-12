@@ -620,7 +620,9 @@ namespace Marlin.View {
                 default:
                     break;
             }
-            current_tab.change_view_mode (mode);
+
+//~             current_tab.change_view_mode (mode);
+            current_tab.view_mode = mode;
             /* ViewContainer takes care of changing appearance */
         }
 

@@ -134,8 +134,30 @@ namespace Marlin.View {
             }
         }
 
+        private Marlin.ViewMode _view_mode = Marlin.ViewMode.INVALID;
+        public Marlin.ViewMode view_mode  {
+            get {
+                return _view_mode;
+            }
+
+            set {
+                if (value != _view_mode) {
+                    _view_mode = value;
+                    GLib.File? loc = this.location; /* Need an owned reference for add_view */
+                    if (loc != null) {
+                        add_view (_view_mode, loc);
+
+                        /* current_slot is created inactive so we activate now since we must be the current tab
+                         * to have received a change mode instruction */
+                        set_active_state (true);
+                        /* Do not update top menu (or record uri) unless folder loads successfully */
+                    }
+                }
+            }
+        }
+
         public GOF.AbstractSlot? view { get; private set; }
-        public Marlin.ViewMode view_mode  { get; private set; default = Marlin.ViewMode.INVALID; }
+
         public bool is_loading { get; private set; default = false; }
         public bool can_show_folder { get; private set; default = false; }
 
@@ -247,56 +269,38 @@ namespace Marlin.View {
                 user_path_change_request (File.new_for_commandline_arg (loc), false, false);
         }
 
-        public void add_view (Marlin.ViewMode mode, GLib.File loc) {
-            assert (view == null);
-            assert (loc != null);
+        public void add_view (Marlin.ViewMode mode, GLib.File _loc) {
+            if (view != null) {
+                store_selection ();
 
+                /* Make sure async loading and thumbnailing are cancelled and signal handlers disconnected */
+                view.close ();
+                disconnect_slot_signals (view);
+
+                content = null; /* Make sure old current_slot and directory view are destroyed */
+                view = null; /* Pre-requisite for add view */
+
+                loading (false);
+            }
+
+            _view_mode = mode;
             overlay_statusbar.cancel ();
-            view_mode = mode;
             overlay_statusbar.showbar = view_mode != Marlin.ViewMode.LIST;
 
+            assert (view == null);
+            assert (_loc != null);
             if (mode == Marlin.ViewMode.MILLER_COLUMNS) {
-                this.view = new Miller (loc, this, mode);
+                this.view = new Miller (_loc, this, mode);
             } else {
-                this.view = new Slot (loc, this, mode);
+                this.view = new Slot (_loc, this, mode);
             }
 
             connect_slot_signals (this.view);
-            directory_is_loading (loc);
+            directory_is_loading (_loc);
             current_slot.initialize_directory ();
             show_all ();
             /* NOTE: current_slot is created inactive to avoid bug during restoring multiple tabs
              * The current_slot becomes active when the tab becomes current */
-        }
-
-        public void change_view_mode (Marlin.ViewMode mode) {
-            var loc = location;
-
-            assert (current_slot != null);
-            assert (view != null && loc != null);
-
-            if (mode != view_mode) {
-                before_mode_change ();
-                add_view (mode, loc);
-                after_mode_change ();
-            }
-        }
-
-        private void before_mode_change () {
-            store_selection ();
-            /* Make sure async loading and thumbnailing are cancelled and signal handlers disconnected */
-            view.close ();
-            disconnect_slot_signals (view);
-            content = null; /* Make sure old current_slot and directory view are destroyed */
-            view = null; /* Pre-requisite for add view */
-            loading (false);
-        }
-
-        private void after_mode_change () {
-            /* current_slot is created inactive so we activate now since we must be the current tab
-             * to have received a change mode instruction */
-            set_active_state (true);
-            /* Do not update top menu (or record uri) unless folder loads successfully */
         }
 
         private void connect_slot_signals (GOF.AbstractSlot aslot) {
@@ -336,8 +340,8 @@ namespace Marlin.View {
 
         public void on_slot_path_changed (GOF.AbstractSlot aslot, bool change_mode_to_icons) {
             /* automagicly enable icon view for icons keypath */
-            if (change_mode_to_icons && view_mode != Marlin.ViewMode.ICON) {
-                change_view_mode (Marlin.ViewMode.ICON);
+            if (change_mode_to_icons) {
+                view_mode = Marlin.ViewMode.ICON; /* No effect if already icon mode */
             } else {
                 directory_is_loading (aslot.location);
             }
