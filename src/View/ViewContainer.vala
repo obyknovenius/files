@@ -27,8 +27,6 @@ using Marlin;
 namespace Marlin.View {
     public class ViewContainer : Gtk.Overlay {
 
-        public Gtk.Widget? content_item;
-        public bool can_show_folder = false;
         private Marlin.View.Window? _window = null;
         public Marlin.View.Window window {
             get {
@@ -45,14 +43,12 @@ namespace Marlin.View {
             }
         }
 
-        public GOF.AbstractSlot? view = null;
-        public Marlin.ViewMode view_mode = Marlin.ViewMode.INVALID;
-
         public GLib.File? location {
             get {
                 return slot != null ? slot.location : null;
             }
         }
+
         public string uri {
             get {
                 return slot != null ? slot.uri : "";
@@ -95,9 +91,45 @@ namespace Marlin.View {
             }
         }
 
-        public bool is_loading {get; private set; default = false;}
+        private Gtk.Widget? _content;
+        public Gtk.Widget? content {
+            private set {
+                if (_content != null) {
+                    remove (_content);
+                }
 
-        public OverlayBar overlay_statusbar;
+                _content = value;
+
+                if (_content != null) {
+                    add (_content);
+                    _content.show_all ();
+                }
+            }
+
+            get {
+                return _content;
+            }
+        }
+
+        private string _tab_name = "";
+        public string tab_name {
+            private set {
+                if (_tab_name != value) { /* Do not signal if no change */
+                    _tab_name = value;
+                    tab_name_changed (value);
+                }
+            }
+            get {
+                return _tab_name;
+            }
+        }
+
+        public GOF.AbstractSlot? view { get; private set; }
+        public Marlin.ViewMode view_mode  { get; private set; default = Marlin.ViewMode.INVALID; }
+        public bool is_loading { get; private set; default = false; }
+        public bool can_show_folder { get; private set; default = false; }
+
+        private OverlayBar overlay_statusbar;
         private Browser browser;
         private GLib.List<GLib.File>? selected_locations = null;
 
@@ -166,36 +198,6 @@ namespace Marlin.View {
         public void close () {
             disconnect_signals ();
             view.close ();
-        }
-
-        public Gtk.Widget? content {
-            set {
-                if (content_item != null) {
-                    remove (content_item);
-                }
-                content_item = value;
-
-                if (content_item != null) {
-                    add (content_item);
-                    content_item.show_all ();
-                }
-            }
-            get {
-                return content_item;
-            }
-        }
-
-        private string label = "";
-        public string tab_name {
-            private set {
-                if (label != value) { /* Do not signal if no change */
-                    label = value;
-                    tab_name_changed (value);
-                }
-            }
-            get {
-                return label;
-            }
         }
 
         public bool go_up () {
