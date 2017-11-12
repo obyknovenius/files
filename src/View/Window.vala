@@ -389,14 +389,6 @@ namespace Marlin.View {
             }
         }
 
-        public GOF.AbstractSlot? get_active_slot () {
-            if (current_tab != null) {
-                return current_tab.get_current_slot ();
-            } else {
-                return null;
-            }
-        }
-
         public new void set_title (string title) {
             this.title = title;
         }
@@ -750,7 +742,7 @@ namespace Marlin.View {
 
         public static void after_undo_redo (void  *data) {
             var window = data as Marlin.View.Window;
-            if (window.current_tab.slot.directory.is_recent) {
+            if (window.current_tab.is_recent) {
                 window.current_tab.reload ();
             }
 
